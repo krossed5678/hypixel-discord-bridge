@@ -4,6 +4,13 @@ const config = require('../config/config.json');
 const recentMessages = new Set();
 const MESSAGE_TTL = 5000; // Messages expire after 5 seconds
 
+// List of Minecraft commands to escape
+const MINECRAFT_COMMANDS = [
+    '/', '\\', '!', '@', '#', '$', '%', '^', '&', '*', '(', ')',
+    'help', 'list', 'me', 'msg', 'tell', 'w', 'whisper', 'teammsg', 'tm',
+    'say', 'team', 'gc', 'guild', 'party', 'p', 'reply', 'r'
+];
+
 // Helper function to sanitize and validate messages
 function sanitizeMessage(message) {
     // Remove any control characters
@@ -18,6 +25,28 @@ function sanitizeMessage(message) {
     }
     
     return message;
+}
+
+// Helper function to escape potential commands in usernames
+function escapeUsername(username) {
+    // Remove any command-like prefixes
+    username = username.replace(/^[\/\\!@#$%^&*()]/g, '');
+    
+    // Escape any remaining command-like characters
+    username = username.replace(/[\/\\!@#$%^&*()]/g, '');
+    
+    // Remove any command-like words
+    MINECRAFT_COMMANDS.forEach(cmd => {
+        const regex = new RegExp(`\\b${cmd}\\b`, 'gi');
+        username = username.replace(regex, '');
+    });
+    
+    // Ensure username isn't empty after sanitization
+    if (!username.trim()) {
+        username = 'DiscordUser';
+    }
+    
+    return username;
 }
 
 // Helper function to generate a unique message ID
@@ -73,7 +102,7 @@ module.exports = function bridge(discord, mcBot) {
     
     // Sanitize the message
     const sanitizedContent = sanitizeMessage(message.content);
-    const sanitizedUsername = sanitizeMessage(message.author.username);
+    const sanitizedUsername = escapeUsername(message.author.username);
     
     // Check if this message was recently processed
     const messageId = generateMessageId('discord', sanitizedUsername, sanitizedContent);
