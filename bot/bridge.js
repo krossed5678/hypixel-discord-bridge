@@ -17,7 +17,7 @@ module.exports = function bridge(discord, mcBot) {
     
     const [_, sender, content] = match;
     
-    const guildChannel = discord.channels.cache.get(config.discord.channelId);
+    const guildChannel = discord.channels.cache.get(process.env.DISCORD_CHANNEL_ID);
     if (guildChannel) {
       guildChannel.send(`**[${sender}]** ${content}`);
     }
@@ -26,7 +26,7 @@ module.exports = function bridge(discord, mcBot) {
   // Discord → Minecraft
   discord.on('messageCreate', (message) => {
     // Ignore bot messages and messages from other channels
-    if (message.author.bot || message.channel.id !== config.discord.channelId) return;
+    if (message.author.bot || message.channel.id !== process.env.DISCORD_CHANNEL_ID) return;
     
     // Send to guild chat
     mcBot.chat(`/gc [${message.author.username}] ${message.content}`);

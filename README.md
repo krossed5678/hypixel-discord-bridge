@@ -48,6 +48,7 @@ Create a new file named `.env` in the root directory:
 ```env
 # Discord Bot Configuration
 DISCORD_BOT_TOKEN=your_discord_bot_token_here
+DISCORD_CHANNEL_ID=your_discord_channel_id_here
 
 # Minecraft Account Configuration
 MINECRAFT_EMAIL=your.minecraft.email@example.com
@@ -59,7 +60,7 @@ Edit `config/config.json`:
 ```json
 {
   "discord": {
-    "channelId": "YOUR_GUILD_CHAT_CHANNEL_ID"
+    "channelId": null
   },
   "minecraft": {
     "email": "your.minecraft.email@example.com"
@@ -252,8 +253,9 @@ Edit `config/config.json`:
 
 3. **Messages aren't being relayed**
    - Check if the bot is in the correct Discord channel
-   - Verify the channel ID in config.json
+   - Verify the DISCORD_CHANNEL_ID in your .env file
    - Make sure the bot has proper permissions in Discord
+   - Ensure the channel ID is correct (you can get it by right-clicking the channel with Developer Mode enabled)
 
 4. **Authentication Errors**
    - Check your Microsoft account credentials
@@ -305,12 +307,6 @@ Edit `config/config.json`:
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🙏 Acknowledgments
-
-- [Mineflayer](https://github.com/PrismarineJS/mineflayer) for Minecraft bot functionality
-- [Discord.js](https://discord.js.org/) for Discord integration
-- [Hypixel](https://hypixel.net) for the amazing server
 
 ## 📦 GitHub Repository Setup
 
@@ -464,3 +460,10 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
    - Don't commit sensitive tokens
    - Use GitHub Secrets for sensitive data
    - Regularly update dependencies 
+
+
+## 🙏 Acknowledgments
+
+- [Mineflayer](https://github.com/PrismarineJS/mineflayer) for Minecraft bot functionality
+- [Discord.js](https://discord.js.org/) for Discord integration
+- [Hypixel](https://hypixel.net) for the amazing server

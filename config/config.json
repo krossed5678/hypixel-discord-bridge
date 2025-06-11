@@ -2,7 +2,7 @@
     "discord": {
         "commandPrefix": "!",
         "allowedChannels": [],
-        "channelId": "YOUR_GUILD_CHAT_CHANNEL_ID"
+        "channelId": null
     },
     "minecraft": {
         "chatFormat": "[Discord] %s: %s",
