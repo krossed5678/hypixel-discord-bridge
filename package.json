@@ -1,0 +1,19 @@
+{
+  "name": "hypixel-discord-bridge",
+  "version": "1.0.0",
+  "description": "A bridge between Discord and Minecraft/Hypixel",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js"
+  },
+  "dependencies": {
+    "discord.js": "^14.14.1",
+    "dotenv": "^16.4.1",
+    "mineflayer": "^4.14.0",
+    "winston": "^3.11.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.3"
+  }
+} 

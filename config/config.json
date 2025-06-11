@@ -1,0 +1,17 @@
+{
+    "discord": {
+        "commandPrefix": "!",
+        "allowedChannels": [],
+        "channelId": "YOUR_GUILD_CHAT_CHANNEL_ID"
+    },
+    "minecraft": {
+        "chatFormat": "[Discord] %s: %s",
+        "maxMessageLength": 256,
+        "email": "your.minecraft.email@example.com"
+    },
+    "logging": {
+        "level": "info",
+        "maxFileSize": "10m",
+        "maxFiles": "7d"
+    }
+} 
