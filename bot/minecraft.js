@@ -2,9 +2,13 @@ const mineflayer = require('mineflayer');
 const config = require('../config/config.json');
 
 module.exports = async function startMinecraftBot() {
+    if (!process.env.MINECRAFT_EMAIL) {
+        throw new Error('MINECRAFT_EMAIL environment variable is required');
+    }
+
     const bot = mineflayer.createBot({
         host: 'mc.hypixel.net',
-        username: process.env.MINECRAFT_EMAIL || config.minecraft.email,
+        username: process.env.MINECRAFT_EMAIL,
         password: process.env.MINECRAFT_PASSWORD, // Optional: can be set in .env
         auth: 'microsoft',
         version: '1.8.9' // Hypixel works best with 1.8.9
@@ -24,7 +28,7 @@ module.exports = async function startMinecraftBot() {
             bot.chat('/g');
             // The response will be handled by the chat event
         } catch (error) {
-            console.error('Failed to check guild status:', error);
+            console.error('Failed to check guild status');
         }
     });
 
@@ -48,14 +52,14 @@ module.exports = async function startMinecraftBot() {
     });
 
     bot.on('kicked', (reason) => {
-        console.warn('Minecraft bot was kicked:', reason);
+        console.warn('Minecraft bot was kicked');
         if (reason.includes('banned')) {
             console.error('❌ Bot is banned from Hypixel!');
         }
     });
 
     bot.on('error', (error) => {
-        console.error('Minecraft bot error:', error);
+        console.error('Minecraft bot error');
     });
 
     return bot;

@@ -6,8 +6,7 @@
     },
     "minecraft": {
         "chatFormat": "[Discord] %s: %s",
-        "maxMessageLength": 256,
-        "email": "your.minecraft.email@example.com"
+        "maxMessageLength": 256
     },
     "logging": {
         "level": "info",

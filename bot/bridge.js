@@ -1,5 +1,40 @@
 const config = require('../config/config.json');
 
+// Store recently processed messages to prevent loops
+const recentMessages = new Set();
+const MESSAGE_TTL = 5000; // Messages expire after 5 seconds
+
+// Helper function to sanitize and validate messages
+function sanitizeMessage(message) {
+    // Remove any control characters
+    message = message.replace(/[\x00-\x1F\x7F-\x9F]/g, '');
+    
+    // Trim whitespace
+    message = message.trim();
+    
+    // Check message length
+    if (message.length > config.minecraft.maxMessageLength) {
+        message = message.substring(0, config.minecraft.maxMessageLength - 3) + '...';
+    }
+    
+    return message;
+}
+
+// Helper function to generate a unique message ID
+function generateMessageId(platform, sender, content) {
+    return `${platform}:${sender}:${content}`;
+}
+
+// Helper function to check if message was recently processed
+function isRecentMessage(messageId) {
+    if (recentMessages.has(messageId)) {
+        return true;
+    }
+    recentMessages.add(messageId);
+    setTimeout(() => recentMessages.delete(messageId), MESSAGE_TTL);
+    return false;
+}
+
 module.exports = function bridge(discord, mcBot) {
   // Minecraft → Discord
   mcBot.on('chat', (username, message) => {
@@ -17,9 +52,17 @@ module.exports = function bridge(discord, mcBot) {
     
     const [_, sender, content] = match;
     
+    // Sanitize the message
+    const sanitizedContent = sanitizeMessage(content);
+    const sanitizedSender = sanitizeMessage(sender);
+    
+    // Check if this message was recently processed
+    const messageId = generateMessageId('minecraft', sanitizedSender, sanitizedContent);
+    if (isRecentMessage(messageId)) return;
+    
     const guildChannel = discord.channels.cache.get(process.env.DISCORD_CHANNEL_ID);
     if (guildChannel) {
-      guildChannel.send(`**[${sender}]** ${content}`);
+      guildChannel.send(`**[${sanitizedSender}]** ${sanitizedContent}`);
     }
   });
 
@@ -28,7 +71,15 @@ module.exports = function bridge(discord, mcBot) {
     // Ignore bot messages and messages from other channels
     if (message.author.bot || message.channel.id !== process.env.DISCORD_CHANNEL_ID) return;
     
+    // Sanitize the message
+    const sanitizedContent = sanitizeMessage(message.content);
+    const sanitizedUsername = sanitizeMessage(message.author.username);
+    
+    // Check if this message was recently processed
+    const messageId = generateMessageId('discord', sanitizedUsername, sanitizedContent);
+    if (isRecentMessage(messageId)) return;
+    
     // Send to guild chat
-    mcBot.chat(`/gc [${message.author.username}] ${message.content}`);
+    mcBot.chat(`/gc [${sanitizedUsername}] ${sanitizedContent}`);
   });
 }; 
