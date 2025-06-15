@@ -10,6 +10,8 @@ A bridge bot that connects Discord and Minecraft/Hypixel servers, allowing for s
 - **Robust Error Handling**: Automatic reconnection and error recovery
 - **Clean Message Formatting**: Messages are properly formatted in both directions
 - **Microsoft Authentication**: Secure login using Microsoft accounts
+- **Anti-Spam Protection**: Rate limiting to prevent message flooding
+- **Message Sanitization**: Prevents command injection and ensures clean messages
 
 ## 📋 Prerequisites
 
@@ -34,7 +36,7 @@ A bridge bot that connects Discord and Minecraft/Hypixel servers, allowing for s
 
 ### 1. Clone the Repository
 ```bash
-git clone https://github.com/krossed5678/hypixel-discord-bridge.git
+git clone https://github.com/yourusername/hypixel-discord-bridge.git
 cd hypixel-discord-bridge
 ```
 
@@ -59,12 +61,10 @@ MINECRAFT_PASSWORD=your_minecraft_password_here  # Optional
 Edit `config/config.json`:
 ```json
 {
-  "discord": {
-    "channelId": null
-  },
-  "minecraft": {
-    "email": "your.minecraft.email@example.com"
-  }
+    "minecraft": {
+        "chatFormat": "[Discord] %s: %s",
+        "maxMessageLength": 256
+    }
 }
 ```
 
@@ -88,184 +88,36 @@ Edit `config/config.json`:
 1. Enable Developer Mode in Discord (Settings → Advanced → Developer Mode)
 2. Right-click the channel you want to use
 3. Click "Copy ID"
-4. Paste the ID in `config.json` as `channelId`
+4. Paste the ID in your `.env` file as `DISCORD_CHANNEL_ID`
 
 ## 🏃‍♂️ Running the Bot
 
-### Discord Deployment Steps
+### Development Mode
+```bash
+npm run dev
+```
 
-1. **Prepare Your Bot**
-   ```bash
-   # Make sure all dependencies are installed
-   npm install
-   
-   # Test the bot locally first
-   npm start
-   ```
+### Production Mode
+```bash
+npm start
+```
 
-2. **Choose a Hosting Solution**
+## 🔧 Features and Configuration
 
-   #### Option A: Free Hosting (for testing)
-   - [Replit](https://replit.com)
-     1. Create a new Repl
-     2. Upload your code
-     3. Add your `.env` file in the Secrets tab
-     4. Run `npm install`
-     5. Start the bot with `npm start`
+### Rate Limiting
+The bot includes built-in rate limiting to prevent spam:
+- Maximum 5 messages per user within 3 seconds
+- 10-second cooldown after exceeding the limit
+- Discord users receive a notification when rate limited
+- Minecraft messages are silently dropped when rate limited
 
-   #### Option B: Paid Hosting (recommended for production)
-   - [DigitalOcean](https://www.digitalocean.com)
-     1. Create a Droplet (Ubuntu recommended)
-     2. Connect via SSH
-     3. Install Node.js:
-        ```bash
-        curl -fsSL https://deb.nodesource.com/setup_16.x | sudo -E bash -
-        sudo apt-get install -y nodejs
-        ```
-     4. Clone your repository:
-        ```bash
-        git clone https://github.com/yourusername/hypixel-discord-bridge.git
-        cd hypixel-discord-bridge
-        ```
-     5. Install PM2:
-        ```bash
-        sudo npm install -g pm2
-        ```
-     6. Create your `.env` file:
-        ```bash
-        nano .env
-        # Paste your environment variables
-        ```
-     7. Start the bot:
-        ```bash
-        pm2 start index.js --name "hypixel-bridge"
-        ```
+### Message Formatting
+- Discord to Minecraft: `[DiscordUsername] message`
+- Minecraft to Discord: `**[MinecraftUsername]** message`
 
-3. **Keep Your Bot Online**
-
-   #### Using PM2 (Recommended)
-   ```bash
-   # Start the bot
-   pm2 start index.js --name "hypixel-bridge"
-   
-   # Make it start on system boot
-   pm2 startup
-   pm2 save
-   
-   # Monitor your bot
-   pm2 monit
-   
-   # View logs
-   pm2 logs hypixel-bridge
-   ```
-
-   #### Using Screen (Alternative)
-   ```bash
-   # Install screen
-   sudo apt-get install screen
-   
-   # Create a new screen session
-   screen -S hypixel-bridge
-   
-   # Start your bot
-   npm start
-   
-   # Detach from screen (Ctrl+A, then D)
-   # To reattach later:
-   screen -r hypixel-bridge
-   ```
-
-4. **Verify Deployment**
-   - Check if the bot is online in your Discord server
-   - Try sending a test message in the configured channel
-   - Check the logs for any errors:
-     ```bash
-     pm2 logs hypixel-bridge
-     # or
-     npm run dev
-     ```
-
-5. **Troubleshooting Deployment**
-
-   #### Common Issues
-   - **Bot goes offline**
-     - Check your hosting provider's status
-     - Verify your `.env` file is correct
-     - Check PM2 logs for errors
-   
-   - **Can't connect to Discord**
-     - Verify your bot token is correct
-     - Check if Discord's API is having issues
-     - Ensure your bot has proper permissions
-   
-   - **Memory Issues**
-     - Monitor memory usage: `pm2 monit`
-     - Restart if memory usage is high: `pm2 restart hypixel-bridge`
-     - Consider upgrading your hosting plan if issues persist
-
-   #### Monitoring Tools
-   ```bash
-   # View real-time logs
-   pm2 logs hypixel-bridge --lines 100
-   
-   # Monitor system resources
-   pm2 monit
-   
-   # Check bot status
-   pm2 status
-   ```
-
-6. **Maintenance**
-
-   #### Regular Updates
-   ```bash
-   # Pull latest changes
-   git pull
-   
-   # Install new dependencies
-   npm install
-   
-   # Restart the bot
-   pm2 restart hypixel-bridge
-   ```
-
-   #### Backup
-   ```bash
-   # Backup your .env file
-   cp .env .env.backup
-   
-   # Backup your config
-   cp config/config.json config/config.json.backup
-   ```
-
-## 🔧 Troubleshooting
-
-### Common Issues
-
-1. **Bot can't connect to Hypixel**
-   - Check if your Minecraft account is banned
-   - Verify your Microsoft account credentials
-   - Make sure you're using a Microsoft account (not Mojang)
-
-2. **Bot isn't in a guild**
-   - Add the Minecraft account to a guild first
-   - Make sure the account has permission to use guild chat
-
-3. **Messages aren't being relayed**
-   - Check if the bot is in the correct Discord channel
-   - Verify the DISCORD_CHANNEL_ID in your .env file
-   - Make sure the bot has proper permissions in Discord
-   - Ensure the channel ID is correct (you can get it by right-clicking the channel with Developer Mode enabled)
-
-4. **Authentication Errors**
-   - Check your Microsoft account credentials
-   - Make sure 2FA is properly set up if enabled
-   - Try logging in to Minecraft manually first
-
-### Logs
-- Check the console output for error messages
-- Look for specific error codes or messages
-- Check both Discord and Minecraft connection status
+### Message Length Limits
+- Maximum message length: 256 characters
+- Longer messages are automatically truncated with "..."
 
 ## 🔒 Security Notes
 
@@ -283,18 +135,6 @@ Edit `config/config.json`:
    - Use minimal required permissions
    - Keep the bot token secure
    - Regularly audit bot permissions
-
-## 📝 Message Format
-
-### Discord to Minecraft
-```
-/gc [DiscordUsername] message
-```
-
-### Minecraft to Discord
-```
-**[MinecraftUsername]** message
-```
 
 ## 🤝 Contributing
 
