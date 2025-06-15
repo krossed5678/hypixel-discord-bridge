@@ -4,12 +4,55 @@ const config = require('../config/config.json');
 const recentMessages = new Set();
 const MESSAGE_TTL = 5000; // Messages expire after 5 seconds
 
+// Rate limiting configuration
+const RATE_LIMIT = {
+    maxMessages: 5,
+    timeWindow: 3000, // 3 seconds
+    cooldown: 10000   // 10 seconds cooldown after rate limit
+};
+
+// Store user message counts and cooldowns
+const userMessageCounts = new Map();
+const userCooldowns = new Map();
+
 // List of Minecraft commands to escape
 const MINECRAFT_COMMANDS = [
     '/', '\\', '!', '@', '#', '$', '%', '^', '&', '*', '(', ')',
     'help', 'list', 'me', 'msg', 'tell', 'w', 'whisper', 'teammsg', 'tm',
     'say', 'team', 'gc', 'guild', 'party', 'p', 'reply', 'r'
 ];
+
+// Helper function to check rate limit
+function checkRateLimit(userId) {
+    const now = Date.now();
+    
+    // Check if user is in cooldown
+    const cooldownEnd = userCooldowns.get(userId);
+    if (cooldownEnd && now < cooldownEnd) {
+        return false;
+    }
+    
+    // Get or initialize user's message count
+    let userData = userMessageCounts.get(userId) || { count: 0, timestamp: now };
+    
+    // Reset count if time window has passed
+    if (now - userData.timestamp > RATE_LIMIT.timeWindow) {
+        userData = { count: 0, timestamp: now };
+    }
+    
+    // Increment message count
+    userData.count++;
+    userMessageCounts.set(userId, userData);
+    
+    // Check if rate limit exceeded
+    if (userData.count > RATE_LIMIT.maxMessages) {
+        // Set cooldown
+        userCooldowns.set(userId, now + RATE_LIMIT.cooldown);
+        return false;
+    }
+    
+    return true;
+}
 
 // Helper function to sanitize and validate messages
 function sanitizeMessage(message) {
@@ -81,6 +124,11 @@ module.exports = function bridge(discord, mcBot) {
     
     const [_, sender, content] = match;
     
+    // Check rate limit
+    if (!checkRateLimit(sender)) {
+        return; // Silently ignore rate-limited messages
+    }
+    
     // Sanitize the message
     const sanitizedContent = sanitizeMessage(content);
     const sanitizedSender = sanitizeMessage(sender);
@@ -99,6 +147,12 @@ module.exports = function bridge(discord, mcBot) {
   discord.on('messageCreate', (message) => {
     // Ignore bot messages and messages from other channels
     if (message.author.bot || message.channel.id !== process.env.DISCORD_CHANNEL_ID) return;
+    
+    // Check rate limit
+    if (!checkRateLimit(message.author.id)) {
+        message.reply('You are sending messages too quickly. Please wait a moment before sending more messages.').catch(() => {});
+        return;
+    }
     
     // Sanitize the message
     const sanitizedContent = sanitizeMessage(message.content);
