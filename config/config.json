@@ -1,16 +1,6 @@
 {
-    "discord": {
-        "commandPrefix": "!",
-        "allowedChannels": [],
-        "channelId": null
-    },
     "minecraft": {
         "chatFormat": "[Discord] %s: %s",
         "maxMessageLength": 256
-    },
-    "logging": {
-        "level": "info",
-        "maxFileSize": "10m",
-        "maxFiles": "7d"
     }
 } 
