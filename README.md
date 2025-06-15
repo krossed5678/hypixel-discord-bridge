@@ -34,7 +34,7 @@ A bridge bot that connects Discord and Minecraft/Hypixel servers, allowing for s
 
 ### 1. Clone the Repository
 ```bash
-git clone [https://github.com/yourusername/hypixel-discord-bridge.git](https://github.com/krossed5678/hypixel-discord-bridge.git)
+git clone https://github.com/krossed5678/hypixel-discord-bridge.git
 cd hypixel-discord-bridge
 ```
 
